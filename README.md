@@ -14,4 +14,6 @@
 
 https://ykleung2025.github.io/air-pollution-tap/
 
-Pages 來源是分支 **main**、資料夾 **/**（根目錄）。倉庫包含 `.nojekyll`，讓 GitHub Pages 直接提供這些靜態檔案。
+第一次請到倉庫的 **Settings → Pages → Build and deployment**，選擇 **Deploy from a branch**，Branch 選 **main**，Folder 選 **/ (root)**，然後按 Save。
+
+倉庫已包含 `.nojekyll`，讓 GitHub Pages 直接提供這些靜態檔案。
