@@ -5,38 +5,15 @@
   var MAX_HEARTS = 5;
   var POLLUTION_LINGER = 8;
   var ECO_LINGER = 12;
-  var SCENE_LENGTH = 16;
 
-  var PLACES = [
-    {
-      id: "road",
-      title: "馬路",
-      blurb: "汽車在路上行駛並排出廢氣。可以改為騎單車或乘搭巴士。",
-      cast: [
-        { id: "exhaust", look: "car" },
-        { id: "transit", look: "bike" },
-        { id: "transit", look: "bus" }
-      ]
-    },
-    {
-      id: "factory",
-      title: "工廠區",
-      blurb: "煙囪正在冒煙。這裡沒有汽車。騎單車可以減少廢氣。",
-      cast: [
-        { id: "exhaust", look: "factory" },
-        { id: "transit", look: "bike" }
-      ]
-    },
-    {
-      id: "park",
-      title: "公園／農地",
-      blurb: "這裡可能有露天焚燒或噴農藥。種樹可以幫助環境。",
-      cast: [
-        { id: "burning", look: "fire" },
-        { id: "pesticide", look: "spray" },
-        { id: "trees", look: "tree" }
-      ]
-    }
+  var CAST = [
+    { id: "exhaust", look: "car" },
+    { id: "exhaust", look: "factory" },
+    { id: "burning", look: "fire" },
+    { id: "pesticide", look: "spray" },
+    { id: "transit", look: "bike" },
+    { id: "transit", look: "bus" },
+    { id: "trees", look: "tree" }
   ];
 
   var LOOK_LABEL = {
@@ -112,7 +89,6 @@
 
   var app = document.getElementById("app");
   var scene = document.getElementById("scene");
-  var sceneTitle = document.getElementById("scene-title");
   var actorsEl = document.getElementById("actors");
   var timerEl = document.getElementById("timer");
   var scoreEl = document.getElementById("score");
@@ -167,10 +143,6 @@
     shownSecond: null,
     reviewBuilt: false,
     spawnCooldown: 0,
-    place: PLACES[0],
-    placeOrder: PLACES.slice(),
-    placeIndex: 0,
-    sceneLeft: SCENE_LENGTH,
     ignoreClicksUntil: 0
   };
 
@@ -261,35 +233,6 @@
     return wrap;
   }
 
-  function shufflePlaces() {
-    var list = PLACES.slice();
-    var i;
-    for (i = list.length - 1; i > 0; i -= 1) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var swap = list[i];
-      list[i] = list[j];
-      list[j] = swap;
-    }
-    state.placeOrder = list;
-    state.placeIndex = 0;
-  }
-
-  function showPlace(place, announceChange) {
-    state.place = place;
-    state.sceneLeft = SCENE_LENGTH;
-    scene.classList.remove("is-road", "is-factory", "is-park");
-    scene.classList.add("is-" + place.id);
-    sceneTitle.textContent = place.title;
-    if (announceChange) announce("場景換成" + place.title + "。" + place.blurb);
-  }
-
-  function advancePlace() {
-    clearActors();
-    state.placeIndex = (state.placeIndex + 1) % state.placeOrder.length;
-    showPlace(state.placeOrder[state.placeIndex], true);
-    state.spawnCooldown = 0.35;
-  }
-
   function bandFor(look) {
     if (look === "factory") return "sky";
     if (look === "car" || look === "bike" || look === "bus") return "road";
@@ -305,51 +248,22 @@
   }
 
   function caps() {
-    if (state.place.id === "park" && scene.clientWidth >= 800) return { pollution: 2, eco: 1 };
-    return { pollution: 1, eco: 1 };
+    var wide = scene.clientWidth >= 800;
+    return { pollution: wide ? 3 : 2, eco: wide ? 2 : 1 };
   }
 
-  function allowedLooks(behavior) {
-    var looks = [];
-    state.place.cast.forEach(function (slot) {
-      if (slot.id === behavior.id && looks.indexOf(slot.look) === -1) looks.push(slot.look);
-    });
-    return looks.length ? looks : behavior.looks;
-  }
-
-  function pickLook(behavior) {
-    var allowed = allowedLooks(behavior);
-    var used = {};
-    aliveActors().forEach(function (actor) {
-      if (actor.behavior.id === behavior.id) used[actor.look] = true;
-    });
-    var fresh = allowed.filter(function (look) { return !used[look]; });
-    var pool = fresh.length ? fresh : allowed;
-    return pool[Math.floor(Math.random() * pool.length)];
-  }
-
-  function inPlace(behavior) {
-    return state.place.cast.some(function (slot) { return slot.id === behavior.id; });
-  }
-
-  function pickBehavior(type) {
-    var used = {};
-    aliveActors().forEach(function (actor) { used[actor.behavior.id] = true; });
-    var pool = BEHAVIORS.filter(function (behavior) {
-      return behavior.type === type && inPlace(behavior) && !used[behavior.id];
+  function pickSlot(type) {
+    var pool = CAST.filter(function (slot) {
+      if (byId[slot.id].type !== type) return false;
+      return !aliveActors().some(function (actor) { return actor.look === slot.look; });
     });
     if (type === "purify") {
       var needed = {};
       aliveActors().forEach(function (actor) {
         if (actor.behavior.type === "pollution") needed[actor.behavior.counter] = true;
       });
-      var matched = pool.filter(function (behavior) { return needed[behavior.id]; });
+      var matched = pool.filter(function (slot) { return needed[slot.id]; });
       if (matched.length) pool = matched;
-    }
-    if (!pool.length) {
-      pool = BEHAVIORS.filter(function (behavior) {
-        return behavior.type === type && inPlace(behavior);
-      });
     }
     if (!pool.length) return null;
     return pool[Math.floor(Math.random() * pool.length)];
@@ -376,12 +290,10 @@
   function groundY(actor) {
     var height = scene.clientHeight;
     var actorH = actor.el.offsetHeight || 120;
-    var ratio = 0.92;
-    if (state.place.id === "road") {
-      ratio = actor.look === "bike" ? 0.8 : 0.985;
-    } else if (state.place.id === "factory") {
-      ratio = actor.look === "bike" ? 0.97 : 0.94;
-    }
+    var ratio = 0.74;
+    if (actor.look === "car" || actor.look === "bus") ratio = 0.985;
+    else if (actor.look === "bike") ratio = 0.84;
+    else if (actor.look === "factory") ratio = 0.8;
     return Math.max(8, Math.min(height - actorH - 2, height * ratio - actorH));
   }
 
@@ -406,9 +318,10 @@
 
   function spawn(type) {
     if (scene.clientWidth < 40 || scene.clientHeight < 40) return null;
-    var behavior = pickBehavior(type);
-    if (!behavior) return null;
-    var look = pickLook(behavior);
+    var slot = pickSlot(type);
+    if (!slot) return null;
+    var behavior = byId[slot.id];
+    var look = slot.look;
     var button = document.createElement("button");
     button.type = "button";
     button.className = "actor is-" + behavior.type;
@@ -420,15 +333,22 @@
     name.className = "actor-name";
     appendName(name, LOOK_LABEL[look] || behavior.name);
 
-    var meterNum = null;
+    var life = behavior.type === "pollution" ? POLLUTION_LINGER : ECO_LINGER;
+    var meter = document.createElement("span");
+    meter.className = "mini-meter";
+    var track = document.createElement("span");
+    track.className = "mini-track";
+    var meterFill = document.createElement("span");
+    meterFill.className = "mini-fill";
+    track.appendChild(meterFill);
+    var meterNum = document.createElement("span");
+    meterNum.className = "meter-num";
+    meterNum.textContent = life + "秒";
+    meter.appendChild(track);
+    meter.appendChild(meterNum);
     button.appendChild(makeSprite(look));
     button.appendChild(name);
-    if (behavior.type === "pollution") {
-      meterNum = document.createElement("span");
-      meterNum.className = "meter-num";
-      meterNum.textContent = POLLUTION_LINGER + "秒";
-      button.appendChild(meterNum);
-    }
+    button.appendChild(meter);
     actorsEl.appendChild(button);
 
     var actor = {
@@ -442,9 +362,10 @@
       vx: 0,
       vy: 0,
       age: 0,
-      life: behavior.type === "pollution" ? POLLUTION_LINGER : ECO_LINGER,
+      life: life,
       dying: false,
       born: performance.now(),
+      meterFill: meterFill,
       meterNum: meterNum
     };
     placeActor(actor);
@@ -482,13 +403,13 @@
     if (countType("pollution") < 1 || countType("pollution") < limit.pollution && countType("purify") >= 1) {
       if (countType("pollution") < limit.pollution) {
         spawn("pollution");
-        state.spawnCooldown = 0.7;
+        state.spawnCooldown = 2.8;
         return;
       }
     }
     if (countType("purify") < limit.eco) {
       spawn("purify");
-      state.spawnCooldown = 0.7;
+      state.spawnCooldown = 2.8;
     }
   }
 
@@ -521,7 +442,9 @@
       if (state.mode !== "play" || actor.dying) return;
       actor.age += dt;
       var remain = actor.life - actor.age;
-      if (actor.behavior.type === "pollution" && actor.meterNum) {
+      if (actor.meterFill) {
+        var elapsed = actor.life > 0 ? Math.min(1, actor.age / actor.life) : 1;
+        actor.meterFill.style.transform = "scaleX(" + elapsed + ")";
         actor.meterNum.textContent = Math.max(0, Math.ceil(remain)) + "秒";
       }
       if (remain <= 0) {
@@ -650,9 +573,6 @@
       }
       updateActors(dt);
       if (state.mode !== "play") return;
-      state.sceneLeft -= dt;
-      if (state.sceneLeft <= 0 && state.timeLeft > 14) advancePlace();
-      if (state.mode !== "play") return;
       ensureCast(dt);
       renderTimer();
     }
@@ -775,18 +695,16 @@
     state.lastTs = 0;
     state.spawnCooldown = 0;
     state.mode = "play";
-    shufflePlaces();
-    showPlace(state.placeOrder[0], false);
     showScreen("play");
     renderScore();
     renderHearts(false);
     renderTimer();
-    announce("遊戲開始。場景是" + state.place.title + "。5 粒心心，倒數 60 秒。污染停留 8 秒會扣心。");
+    announce("遊戲開始。街道、公園和工廠旁邊都在同一個畫面。5 粒心心，倒數 60 秒。污染的小時間條滿了會扣心。");
     window.requestAnimationFrame(function () {
       if (state.mode !== "play") return;
       spawn("pollution");
       spawn("purify");
-      state.spawnCooldown = 4;
+      state.spawnCooldown = 2.6;
       state.raf = window.requestAnimationFrame(frame);
     });
   }
