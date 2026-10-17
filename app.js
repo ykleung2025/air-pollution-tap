@@ -206,40 +206,94 @@
     });
   }
 
-  function addPuffs(parent, className, count) {
-    var wrap = document.createElement("span");
-    wrap.className = className;
-    var i;
-    for (i = 0; i < count; i += 1) wrap.appendChild(document.createElement("i"));
-    parent.appendChild(wrap);
+  function node(tag, className) {
+    var element = document.createElement(tag);
+    if (className) element.className = className;
+    return element;
   }
 
-  function makeFigure(look) {
-    var fig = document.createElement("span");
-    fig.className = "fig fig-" + look;
-    fig.setAttribute("aria-hidden", "true");
-    var emoji = document.createElement("span");
-    emoji.className = "emoji";
+  function puffCloud(kind, count) {
+    var wrap = node("span", "puffs puffs-" + kind);
+    var i;
+    for (i = 0; i < count; i += 1) wrap.appendChild(node("i"));
+    return wrap;
+  }
+
+  function makeSprite(look) {
+    var wrap = node("span", "sprite-wrap");
+    var sprite = node("span", "sprite sprite-" + look);
+    sprite.setAttribute("aria-hidden", "true");
+    wrap.appendChild(sprite);
+
     if (look === "car") {
-      addPuffs(fig, "exhaust", 3);
-      emoji.textContent = "🚗";
+      sprite.appendChild(puffCloud("exhaust", 4));
+      var car = node("span", "car");
+      var carBody = node("span", "car-body");
+      carBody.appendChild(node("span", "car-top"));
+      carBody.appendChild(node("span", "car-light"));
+      car.appendChild(carBody);
+      car.appendChild(node("span", "wheel wheel-a"));
+      car.appendChild(node("span", "wheel wheel-b"));
+      sprite.appendChild(car);
     } else if (look === "factory") {
-      addPuffs(fig, "stack", 2);
-      emoji.textContent = "🏭";
+      sprite.appendChild(puffCloud("stack", 4));
+      sprite.appendChild(node("span", "stack-chimney"));
+      var mill = node("span", "mill");
+      mill.appendChild(node("span"));
+      mill.appendChild(node("span"));
+      mill.appendChild(node("span"));
+      sprite.appendChild(mill);
     } else if (look === "fire") {
-      emoji.textContent = "🔥";
+      sprite.appendChild(puffCloud("smoke", 4));
+      var flames = node("span", "flames");
+      flames.appendChild(node("i", "flame flame-a"));
+      flames.appendChild(node("i", "flame flame-b"));
+      flames.appendChild(node("i", "flame flame-c"));
+      sprite.appendChild(flames);
+      sprite.appendChild(node("span", "pile"));
     } else if (look === "spray") {
-      addPuffs(fig, "mist", 2);
-      emoji.textContent = "🧴";
+      var walker = node("span", "person");
+      walker.appendChild(node("span", "head"));
+      walker.appendChild(node("span", "torso"));
+      walker.appendChild(node("span", "leg leg-a"));
+      walker.appendChild(node("span", "leg leg-b"));
+      sprite.appendChild(walker);
+      sprite.appendChild(node("span", "sprayer"));
+      sprite.appendChild(puffCloud("mist", 4));
     } else if (look === "tree") {
-      emoji.textContent = "🌳";
+      var planter = node("span", "planter");
+      planter.appendChild(node("span", "head"));
+      planter.appendChild(node("span", "torso"));
+      planter.appendChild(node("span", "arm"));
+      sprite.appendChild(planter);
+      var sapling = node("span", "sapling");
+      sapling.appendChild(node("span", "leaves"));
+      sapling.appendChild(node("span", "trunk"));
+      sprite.appendChild(sapling);
+      sprite.appendChild(node("span", "soil"));
     } else if (look === "bus") {
-      emoji.textContent = "🚌";
+      var bus = node("span", "bus");
+      var busBody = node("span", "bus-body");
+      busBody.appendChild(node("span", "bus-win"));
+      busBody.appendChild(node("span", "bus-win"));
+      busBody.appendChild(node("span", "bus-win"));
+      busBody.appendChild(node("span", "bus-door"));
+      bus.appendChild(busBody);
+      bus.appendChild(node("span", "wheel wheel-a"));
+      bus.appendChild(node("span", "wheel wheel-b"));
+      sprite.appendChild(bus);
     } else {
-      emoji.textContent = "🚲";
+      var bike = node("span", "bike");
+      var rider = node("span", "rider");
+      rider.appendChild(node("span", "head"));
+      rider.appendChild(node("span", "rider-body"));
+      bike.appendChild(rider);
+      bike.appendChild(node("span", "bike-frame"));
+      bike.appendChild(node("span", "wheel wheel-a"));
+      bike.appendChild(node("span", "wheel wheel-b"));
+      sprite.appendChild(bike);
     }
-    fig.appendChild(emoji);
-    return fig;
+    return wrap;
   }
 
   function bandFor(look) {
@@ -292,40 +346,49 @@
   }
 
   function paint(actor) {
+    var facing = actor.look === "car" || actor.look === "bus" || actor.look === "bike" || actor.look === "spray" || actor.look === "tree";
     actor.el.style.transform = "translate(" + actor.x + "px, " + actor.y + "px)";
-    actor.el.style.zIndex = String(2 + Math.round(actor.y / 80));
+    actor.el.classList.toggle("face-left", facing && actor.vx < 0);
+    actor.el.style.zIndex = String(2 + Math.round(actor.y / 40));
+  }
+
+  function speedFor(look) {
+    if (reduceMotion) return look === "car" || look === "bus" || look === "bike" ? 36 : 12;
+    if (look === "car") return 108;
+    if (look === "bus") return 72;
+    if (look === "bike") return 84;
+    if (look === "spray") return 40;
+    if (look === "factory") return 18;
+    if (look === "fire") return 14;
+    return 16;
+  }
+
+  function groundY(actor) {
+    var height = scene.clientHeight;
+    var actorH = actor.el.offsetHeight || 120;
+    var ratio = 0.7;
+    if (actor.look === "car" || actor.look === "bus") ratio = 0.985;
+    else if (actor.look === "bike") ratio = 0.84;
+    else if (actor.look === "factory") ratio = 0.5;
+    return Math.max(4, Math.min(height - actorH - 2, height * ratio - actorH));
   }
 
   function limitsFor(actor) {
     var width = scene.clientWidth;
-    var height = scene.clientHeight;
-    var actorW = actor.el.offsetWidth || 168;
-    var actorH = actor.el.offsetHeight || 150;
-    var top = 42;
-    var bottom = Math.max(top, height - actorH - 8);
-    if (actor.band === "sky") bottom = Math.max(top, Math.min(bottom, height * 0.4));
-    if (actor.band === "park") {
-      top = Math.max(top, height * 0.3);
-      bottom = Math.max(top, Math.min(bottom, height * 0.68));
-    }
-    if (actor.band === "road") top = Math.max(top, height * 0.5);
+    var actorW = actor.el.offsetWidth || 140;
     return {
-      left: 8,
-      right: Math.max(8, width - actorW - 8),
-      top: top,
-      bottom: bottom
+      left: 4,
+      right: Math.max(4, width - actorW - 4)
     };
   }
 
   function placeActor(actor) {
     var box = limitsFor(actor);
-    actor.x = box.left + Math.random() * Math.max(0, box.right - box.left);
-    actor.y = box.top + Math.random() * Math.max(0, box.bottom - box.top);
-    var speed = (reduceMotion ? 12 : 26) + Math.random() * (reduceMotion ? 8 : 18);
-    var angle = Math.random() * Math.PI * 2;
-    actor.vx = Math.cos(angle) * speed;
-    actor.vy = Math.sin(angle) * speed * 0.65;
-    if (Math.abs(actor.vx) < 10) actor.vx = (actor.vx < 0 ? -1 : 1) * 10;
+    var fromLeft = Math.random() < 0.5;
+    actor.x = fromLeft ? box.left : Math.max(box.left, box.right - 8);
+    actor.y = groundY(actor);
+    actor.vx = (fromLeft ? 1 : -1) * speedFor(actor.look);
+    actor.vy = 0;
     paint(actor);
   }
 
@@ -340,40 +403,19 @@
     button.dataset.look = look;
     button.setAttribute("aria-label", kindLabel(behavior.type) + "：" + behavior.name);
 
-    var card = document.createElement("span");
-    card.className = "actor-card";
-    card.appendChild(makeFigure(look));
-
-    var chip = document.createElement("span");
-    chip.className = "chip";
-    chip.textContent = shortKind(behavior.type);
-
     var name = document.createElement("span");
     name.className = "actor-name";
     appendName(name, behavior.name);
 
-    card.appendChild(chip);
-    card.appendChild(name);
-
-    var meterFill = null;
     var meterNum = null;
+    button.appendChild(makeSprite(look));
+    button.appendChild(name);
     if (behavior.type === "pollution") {
-      var meter = document.createElement("span");
-      meter.className = "meter";
-      var track = document.createElement("span");
-      track.className = "meter-track";
-      meterFill = document.createElement("span");
-      meterFill.className = "meter-fill";
-      track.appendChild(meterFill);
       meterNum = document.createElement("span");
       meterNum.className = "meter-num";
-      meterNum.textContent = POLLUTION_LINGER + " 秒";
-      meter.appendChild(track);
-      meter.appendChild(meterNum);
-      card.appendChild(meter);
+      meterNum.textContent = POLLUTION_LINGER + "秒";
+      button.appendChild(meterNum);
     }
-
-    button.appendChild(card);
     actorsEl.appendChild(button);
 
     var actor = {
@@ -390,7 +432,6 @@
       life: behavior.type === "pollution" ? POLLUTION_LINGER : ECO_LINGER,
       dying: false,
       born: performance.now(),
-      meterFill: meterFill,
       meterNum: meterNum
     };
     placeActor(actor);
@@ -450,20 +491,14 @@
         var ah = a.el.offsetHeight;
         var bw = b.el.offsetWidth;
         var bh = b.el.offsetHeight;
-        var dx = (a.x + aw / 2) - (b.x + bw / 2);
         var dy = (a.y + ah / 2) - (b.y + bh / 2);
-        var overlapX = (aw + bw) / 2 + 8 - Math.abs(dx);
-        var overlapY = (ah + bh) / 2 + 8 - Math.abs(dy);
-        if (overlapX <= 0 || overlapY <= 0) continue;
-        if (overlapX < overlapY) {
-          var signX = dx < 0 ? -1 : 1;
-          a.x += signX * overlapX / 2;
-          b.x -= signX * overlapX / 2;
-        } else {
-          var signY = dy < 0 ? -1 : 1;
-          a.y += signY * overlapY / 2;
-          b.y -= signY * overlapY / 2;
-        }
+        if (Math.abs(dy) > (ah + bh) / 2) continue;
+        var dx = (a.x + aw / 2) - (b.x + bw / 2);
+        var overlapX = (aw + bw) / 2 + 10 - Math.abs(dx);
+        if (overlapX <= 0) continue;
+        var signX = dx < 0 ? -1 : 1;
+        a.x += signX * overlapX / 2;
+        b.x -= signX * overlapX / 2;
       }
     }
   }
@@ -473,10 +508,8 @@
       if (state.mode !== "play" || actor.dying) return;
       actor.age += dt;
       var remain = actor.life - actor.age;
-      if (actor.behavior.type === "pollution" && actor.meterFill) {
-        var ratio = Math.max(0, remain / actor.life);
-        actor.meterFill.style.transform = "scaleX(" + ratio + ")";
-        actor.meterNum.textContent = Math.max(0, Math.ceil(remain)) + " 秒";
+      if (actor.behavior.type === "pollution" && actor.meterNum) {
+        actor.meterNum.textContent = Math.max(0, Math.ceil(remain)) + "秒";
       }
       if (remain <= 0) {
         if (actor.behavior.type === "pollution") expirePollution(actor);
@@ -484,7 +517,6 @@
         return;
       }
       actor.x += actor.vx * dt;
-      actor.y += actor.vy * dt;
       var box = limitsFor(actor);
       if (actor.x <= box.left) {
         actor.x = box.left;
@@ -493,13 +525,7 @@
         actor.x = box.right;
         actor.vx = -Math.abs(actor.vx);
       }
-      if (actor.y <= box.top) {
-        actor.y = box.top;
-        actor.vy = Math.abs(actor.vy);
-      } else if (actor.y >= box.bottom) {
-        actor.y = box.bottom;
-        actor.vy = -Math.abs(actor.vy);
-      }
+      actor.y = groundY(actor);
       paint(actor);
     });
     separateActors();
@@ -507,7 +533,7 @@
     aliveActors().forEach(function (actor) {
       var box = limitsFor(actor);
       actor.x = Math.min(Math.max(actor.x, box.left), box.right);
-      actor.y = Math.min(Math.max(actor.y, box.top), box.bottom);
+      actor.y = groundY(actor);
       paint(actor);
     });
   }
