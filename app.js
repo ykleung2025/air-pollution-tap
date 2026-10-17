@@ -150,7 +150,7 @@
 
   function paint(floater) {
     floater.el.style.transform = "translate(" + floater.x + "px, " + floater.y + "px) rotate(" + floater.rot + "deg)";
-    floater.el.style.zIndex = String(10 + Math.round(floater.y));
+    floater.el.style.zIndex = String(1 + (Math.round(floater.y) % 8));
   }
 
   function syncCardSize(floater) {
@@ -301,11 +301,6 @@
     }
   }
 
-  function removeFloater(floater) {
-    state.floaters = state.floaters.filter(function (item) { return item !== floater; });
-    floater.el.remove();
-  }
-
   function reclampFloaters() {
     var width = playArea.clientWidth;
     var height = playArea.clientHeight;
@@ -449,15 +444,17 @@
 
   function closeModal() {
     if (modal.hidden) return;
-    var shouldRefill = state.mode === "play" && !state.pendingEnd;
+    var shouldRefresh = state.mode === "play" && !state.pendingEnd;
     hideModal();
     if (state.pendingEnd || state.timeLeft <= 0) {
       endGame();
       return;
     }
-    if (shouldRefill) {
+    if (shouldRefresh) {
       window.setTimeout(function () {
-        if (state.mode === "play" && !state.paused) fillFloaters();
+        if (state.mode !== "play" || state.paused) return;
+        clearFloaters();
+        fillFloaters();
       }, 280);
     }
   }
@@ -473,7 +470,7 @@
       state.purifyTaps += 1;
     }
     var behavior = floater.behavior;
-    removeFloater(floater);
+    clearFloaters();
     openModal(behavior);
   }
 
