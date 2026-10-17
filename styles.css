@@ -1273,6 +1273,282 @@ body.is-paused .actor {
   75% { transform: translateX(3px); }
 }
 
+.time-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.time-caption {
+  flex: none;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.time-row .timebar {
+  position: relative;
+  flex: 1;
+  height: 28px;
+  overflow: hidden;
+  background: #d7e6f2;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 2px rgba(22, 50, 74, 0.08);
+}
+
+.time-row .timebar-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #0a6b40, #7ed0a4);
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+.timebar-readout {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-shadow: 0 1px 0 #fff, 0 0 4px #fff;
+  pointer-events: none;
+}
+
+.time-row .timebar.is-urgent .timebar-fill {
+  background: linear-gradient(90deg, #e25b45, #ffb199);
+}
+
+.backdrop,
+.backdrop * {
+  pointer-events: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+.sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#8ecff2, #d7f1ff 58%, transparent 59%);
+}
+
+.scene.is-factory .sky {
+  background: linear-gradient(#b9c9d6, #e4edf3 55%, transparent 56%);
+}
+
+.scene.is-park .sky {
+  background: linear-gradient(#8ecff2, #e7f8ff 46%, transparent 47%);
+}
+
+.far { display: none; position: absolute; left: 0; right: 0; }
+.scene.is-road .far-road,
+.scene.is-factory .far-factory,
+.scene.is-park .far-park { display: block; }
+
+.far-road {
+  bottom: 28%;
+  height: 28%;
+}
+
+.far-road span {
+  position: absolute;
+  bottom: 0;
+  width: 70px;
+  height: 78px;
+  background: #f4e7d4;
+  border: 3px solid #243044;
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+}
+
+.far-road span:nth-child(1) { left: 8%; height: 64px; }
+.far-road span:nth-child(2) { left: 42%; height: 92px; background: #f7d7c4; }
+.far-road span:nth-child(3) { right: 10%; width: 84px; }
+
+.far-factory {
+  left: 8%;
+  right: 8%;
+  bottom: 22%;
+  height: 18%;
+}
+
+.tank {
+  position: absolute;
+  right: 6%;
+  bottom: 0;
+  width: 54px;
+  height: 54px;
+  background: #9aa7b4;
+  border: 3px solid #243044;
+  border-radius: 50%;
+}
+
+.fence {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 16px;
+  background: repeating-linear-gradient(90deg, #d7c39a 0 10px, transparent 10px 18px);
+  border-top: 3px solid #8a5a3b;
+}
+
+.far-park {
+  bottom: 38%;
+  height: 22%;
+}
+
+.hill {
+  position: absolute;
+  left: -5%;
+  right: 20%;
+  bottom: 0;
+  height: 70px;
+  background: #b7e39a;
+  border-radius: 80px 80px 0 0;
+}
+
+.far-park i {
+  position: absolute;
+  bottom: 8px;
+  width: 14px;
+  height: 14px;
+  background: #f28ab0;
+  border: 2px solid #243044;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+}
+
+.far-park i:nth-child(2) { left: 18%; background: #ffe08a; }
+.far-park i:nth-child(3) { left: 62%; }
+.far-park i:nth-child(4) { right: 12%; background: #9fd7f5; }
+
+.ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.lane { display: none; }
+
+.scene.is-road .ground {
+  height: 20%;
+  background: #5d6b76;
+}
+
+.scene.is-road .lane {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 18%;
+  height: 10%;
+  background: #d5e38a;
+  border-top: 3px dashed rgba(255, 255, 255, 0.7);
+}
+
+.scene.is-factory .ground {
+  height: 46%;
+  background: #c5cdd4;
+}
+
+.scene.is-factory .lane {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8%;
+  height: 8px;
+  background: #e7e1c8;
+}
+
+.scene.is-park .ground {
+  height: 48%;
+  background: linear-gradient(#8fd16a, #67b84d);
+}
+
+.scene.is-park .lane { display: none; }
+
+.sticker {
+  display: block;
+  width: 168px;
+  height: 112px;
+}
+
+.sticker-factory { width: 150px; height: 150px; }
+.sticker-bus { width: 196px; height: 112px; }
+.sticker-fire,
+.sticker-spray,
+.sticker-tree { width: 156px; height: 132px; }
+
+.sticker .art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.face-left .sticker .art {
+  transform: scaleX(-1);
+}
+
+.sticker .wheel {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wheel-spin 0.55s linear infinite;
+}
+
+.sticker .puff {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sticker-puff 1.3s ease-out infinite;
+}
+
+.sticker .puff:nth-child(2) { animation-delay: 0.35s; }
+.sticker .puff:nth-child(3) { animation-delay: 0.7s; }
+
+.sticker .flame {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: flicker 0.35s ease-in-out infinite alternate;
+}
+
+.sticker .sapling {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: sprout 2.4s ease-in-out infinite;
+}
+
+.sticker .arm {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: dig 1.1s ease-in-out infinite;
+}
+
+.sticker .leg {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: step 0.5s ease-in-out infinite;
+}
+
+.sticker .leg-b { animation-direction: reverse; }
+
+.actor.is-burst .sticker,
+.actor.is-leave .sticker {
+  animation: pop-out 0.4s ease forwards;
+}
+
+@keyframes sticker-puff {
+  0% { opacity: 0.2; transform: translate(0, 6px) scale(0.6); }
+  100% { opacity: 0; transform: translate(-4px, -16px) scale(1.35); }
+}
+
 @media (max-width: 720px) {
   .review-table thead {
     position: absolute;
@@ -1321,8 +1597,9 @@ body.is-paused .actor {
     border-bottom-width: 26px;
   }
 
-  .sprite-car { width: 118px; height: 64px; }
-  .sprite-bus { width: 142px; height: 70px; }
+  .sticker { width: 132px; height: 92px; }
+  .sticker-factory { width: 124px; height: 124px; }
+  .sticker-bus { width: 156px; height: 92px; }
   .actor-name { font-size: 0.68rem; }
 }
 
@@ -1337,12 +1614,12 @@ body.is-paused .actor {
   .bg-puff,
   .exhaust i,
   .stack i,
-  .puffs i,
-  .wheel,
-  .flame,
-  .leg,
-  .arm,
-  .sapling,
+  .sticker .puff,
+  .sticker .wheel,
+  .sticker .flame,
+  .sticker .leg,
+  .sticker .arm,
+  .sticker .sapling,
   .dashes {
     animation: none;
   }
