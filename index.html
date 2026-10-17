@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="color-scheme" content="light">
-    <meta name="description" content="清新空氣小偵探：馬路、工廠區和公園會輪流出現。5 粒心心，污染停留 8 秒會扣心，頂部有剩餘時間條。">
+    <meta name="description" content="清新空氣小偵探：同一個畫面有街道、公園和工廠旁邊的煙囪。5 粒心心，污染的小時間條滿了會扣心。">
     <title>清新空氣小偵探</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2379c7ef'/%3E%3Ccircle cx='32' cy='26' r='14' fill='%230a6b40'/%3E%3Crect x='29' y='38' width='6' height='14' rx='2' fill='%238a5a2b'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="styles.css">
@@ -42,15 +42,13 @@
           <div class="panel">
             <p class="hero" translate="no" aria-hidden="true">🏫🌳</p>
             <h2>遊戲方法</h2>
-            <p class="lede">一次只會看到一個場景，大約每 16 秒輪換。名稱以細字跟在卡通物件旁邊。頂部的長條是剩餘時間。</p>
+            <p class="lede">同一個畫面裡有街道、公園，以及工廠旁邊的煙囪。汽車、單車、巴士、黑煙煙囪、露天焚燒、噴農藥和種樹都會走出來。名稱以細字跟在卡通物件旁邊。</p>
             <ul class="rules">
-              <li><strong>馬路</strong>：汽車行駛並排廢氣，以及騎單車或巴士。</li>
-              <li><strong>工廠區</strong>：煙囪冒煙，以及騎單車。不會有汽車或學校。</li>
-              <li><strong>公園／農地</strong>：露天焚燒、噴農藥，以及種樹。</li>
-              <li>你有 <strong>5 粒心心</strong>，和 <strong>60 秒</strong>。</li>
+              <li>你有 <strong>5 粒心心</strong>。頂部的長條是剩餘的 <strong>60 秒</strong>。</li>
+              <li>每個物件都有一條<strong>小時間條</strong>，會慢慢填滿，旁邊有剩餘秒數。</li>
+              <li><strong>污染的小時間條填滿</strong>（約 8 秒）還沒點中：扣 1 心。心心用完，遊戲結束。</li>
               <li><strong>點中污染行為</strong>：＋1 分，閱讀它怎樣傷害動植物和生態。你及時點中，就不會扣心。</li>
-              <li><strong>污染停留 8 秒</strong>還沒點中：扣 1 心。心心用完，遊戲結束。</li>
-              <li><strong>點中對應的環保行為</strong>：不加分、不扣分，回復 1 心（最多 5 心），並閱讀它怎樣幫助環境。</li>
+              <li><strong>點中對應的環保行為</strong>：不加分、不扣分，回復 1 心（最多 5 心），並閱讀它怎樣幫助環境。環保的小時間條填滿後，它會離開。</li>
               <li>如果場上沒有它對應的污染，心心不變，仍然可以學習。</li>
               <li>讀說明時，倒數和場景會暫停，其他角色會收起。</li>
             </ul>
@@ -64,8 +62,8 @@
         </section>
 
         <section id="screen-play" class="screen screen-play" hidden>
-          <p class="play-hint">點污染＋1 分。污染停滿 8 秒會扣 1 心。點對應的環保行為可回復 1 心。</p>
-          <div class="scene is-road" id="scene">
+          <p class="play-hint">點污染＋1 分。污染的小時間條滿了會扣 1 心。點對應的環保行為可回復 1 心。環保的小時間條滿了，它就會離開。</p>
+          <div class="scene is-combined" id="scene">
             <div class="backdrop" aria-hidden="true">
               <div class="sky"></div>
               <div class="sun"></div>
@@ -74,10 +72,11 @@
               <div class="far far-road"><span></span><span></span><span></span></div>
               <div class="far far-factory"><span class="tank"></span><span class="fence"></span></div>
               <div class="far far-park"><span class="hill"></span><i></i><i></i><i></i></div>
+              <div class="grass"></div>
               <div class="ground"></div>
               <div class="lane"></div>
             </div>
-            <p class="scene-title" id="scene-title">馬路</p>
+            <p class="scene-title" id="scene-title">街道、公園和工廠旁邊</p>
             <div id="actors" class="actors" role="group" aria-label="場景中的行為"></div>
             <p id="toast" class="toast" hidden></p>
           </div>

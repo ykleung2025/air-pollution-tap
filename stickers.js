@@ -34,18 +34,15 @@ var STICKERS = {
     '<path d="M112 66 L136 74" fill="none" stroke="#243044" stroke-width="3" stroke-linecap="round"/>' +
     "</svg>",
 
-  factory: '<svg class="art" viewBox="0 0 200 170" aria-hidden="true">' +
-    '<ellipse cx="100" cy="158" rx="72" ry="8" fill="rgba(36,48,68,0.15)"/>' +
+  factory: '<svg class="art" viewBox="0 0 120 180" aria-hidden="true">' +
+    '<ellipse cx="60" cy="168" rx="28" ry="7" fill="rgba(36,48,68,0.15)"/>' +
     '<g class="smoke">' +
-      '<circle class="puff" cx="48" cy="36" r="12" fill="#c5d0d8"/>' +
-      '<circle class="puff" cx="34" cy="18" r="9" fill="#d5dee6"/>' +
-      '<circle class="puff" cx="62" cy="16" r="10" fill="#b7c3cc"/>' +
+      '<circle class="puff" cx="52" cy="36" r="13" fill="#1a1a1a"/>' +
+      '<circle class="puff" cx="34" cy="18" r="10" fill="#111"/>' +
+      '<circle class="puff" cx="70" cy="14" r="11" fill="#2b2b2b"/>' +
     "</g>" +
-    '<rect x="36" y="40" width="22" height="70" rx="3" fill="#8d6b5a" stroke="#243044" stroke-width="3"/>' +
-    '<rect x="52" y="78" width="120" height="72" rx="8" fill="#d5dde6" stroke="#243044" stroke-width="3"/>' +
-    '<rect x="70" y="96" width="18" height="26" rx="2" fill="#b7e3f7" stroke="#243044" stroke-width="3"/>' +
-    '<rect x="100" y="96" width="18" height="26" rx="2" fill="#b7e3f7" stroke="#243044" stroke-width="3"/>' +
-    '<rect x="130" y="96" width="18" height="26" rx="2" fill="#b7e3f7" stroke="#243044" stroke-width="3"/>' +
+    '<rect x="44" y="42" width="28" height="118" rx="4" fill="#8d6b5a" stroke="#243044" stroke-width="3"/>' +
+    '<rect x="38" y="36" width="40" height="12" rx="3" fill="#6d5348" stroke="#243044" stroke-width="3"/>' +
     "</svg>",
 
   fire: '<svg class="art" viewBox="0 0 180 150" aria-hidden="true">' +

@@ -618,7 +618,7 @@ main {
 .actor-name {
   position: absolute;
   left: 50%;
-  bottom: calc(100% + 0.95rem);
+  bottom: calc(100% + 1.15rem);
   display: block;
   width: max-content;
   max-width: 8.8rem;
@@ -643,17 +643,50 @@ main {
   white-space: normal;
 }
 
-.meter-num {
+.mini-meter {
   position: absolute;
   left: 50%;
   bottom: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  width: 4.8rem;
+  transform: translateX(-50%);
+}
+
+.mini-track {
+  flex: 1;
+  height: 8px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(22, 50, 74, 0.18);
+}
+
+.mini-fill {
   display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--coral);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.actor.is-purify .mini-fill {
+  background: var(--clean);
+}
+
+.meter-num {
+  flex: none;
   color: var(--coral-deep);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 800;
   text-shadow: 0 1px 0 #fff;
-  transform: translateX(-50%);
   white-space: nowrap;
+}
+
+.actor.is-purify .meter-num {
+  color: var(--green);
 }
 
 .badge.is-pollution {
@@ -1352,6 +1385,41 @@ body.is-paused .actor {
 .scene.is-factory .far-factory,
 .scene.is-park .far-park { display: block; }
 
+.grass { display: none; }
+
+.scene.is-combined .far-road,
+.scene.is-combined .far-park,
+.scene.is-combined .grass,
+.scene.is-combined .lane { display: block; }
+
+.scene.is-combined .far-factory { display: none; }
+.scene.is-combined .far-road { bottom: 46%; }
+.scene.is-combined .far-park { bottom: 40%; }
+
+.scene.is-combined .grass {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 16%;
+  height: 30%;
+  background: linear-gradient(#9adf74, #67b84d);
+}
+
+.scene.is-combined .ground {
+  height: 18%;
+  background: #5d6b76;
+}
+
+.scene.is-combined .lane {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 16%;
+  height: 8%;
+  background: #d5e38a;
+  border-top: 3px dashed rgba(255, 255, 255, 0.75);
+}
+
 .far-road {
   bottom: 28%;
   height: 28%;
@@ -1481,7 +1549,7 @@ body.is-paused .actor {
   height: 112px;
 }
 
-.sticker-factory { width: 150px; height: 150px; }
+.sticker-factory { width: 78px; height: 148px; }
 .sticker-bus { width: 196px; height: 112px; }
 .sticker-fire,
 .sticker-spray,
@@ -1598,7 +1666,7 @@ body.is-paused .actor {
   }
 
   .sticker { width: 132px; height: 92px; }
-  .sticker-factory { width: 124px; height: 124px; }
+  .sticker-factory { width: 64px; height: 124px; }
   .sticker-bus { width: 156px; height: 92px; }
   .actor-name { font-size: 0.68rem; }
 }
